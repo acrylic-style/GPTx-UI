@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" href="/favicon.ico"/>
+    <link href='https://fonts.googleapis.com/css?family=JetBrains Mono' rel='stylesheet'>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script>
+        ReadableStream.prototype[Symbol.asyncIterator] = async function* () {
+            const reader = this.getReader()
+            try {
+                while (true) {
+                    const {done, value} = await reader.read()
+                    if (done) return
+                    yield value
+                }
+            } finally {
+                reader.releaseLock()
+            }
+        }
+    </script>
+    <title>GPTx-UI</title>
+</head>
+
+<body>
+<div id="app"></div>
+<script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

@@ -4,7 +4,7 @@ export const SUMMARIZE_PROMPT = 'Summarize the prompt in around 40 characters fo
 
 export const apiUrl = (path: string) => {
   if (process.env.NODE_ENV === 'production') {
-    return `https://chat.acrylicstyle.xyz/api/${path}`
+    return `/api/${path}`
   } else {
     return `http://localhost:8080/${path}`
   }

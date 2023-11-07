@@ -6,8 +6,6 @@ export default {
       return fetch(`https://${env.HOST}/${objectName.substring(4)}`, {
         method: request.method,
         body: request.body,
-        headers: request.headers,
-        cf: request.cf,
       })
     }
     return env.ASSETS.fetch(request)

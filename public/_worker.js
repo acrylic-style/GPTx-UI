@@ -7,6 +7,7 @@ export default {
         method: request.method,
         body: request.body,
         headers: request.headers,
+        cf: request.cf,
       })
     }
     return env.ASSETS.fetch(request)

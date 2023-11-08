@@ -11,6 +11,7 @@
       v-for="item in items"
       :key="item.id"
       :item="item"
+      :type="type"
       :selected="selectedId === item.id"
       :disabled="disabled"
       @click="selectedId = item.id; emit('load', item); update()"
@@ -19,17 +20,27 @@
 </template>
 
 <script lang="ts" setup>
-import {HistoryEntry, loadAllHistory} from "@/util/history";
+import {loadAllHistory as loadAllHistoryNormal} from "@/util/history";
+import {loadAllHistory as loadAllHistoryThread} from "@/util/thread_history";
 import HistoryEntryButton from "@/components/HistoryEntryButton.vue";
 import {ref} from "vue";
 
-defineProps<{
+const { type } = defineProps<{
+  type: 'normal' | 'thread'
   disabled: boolean
 }>()
 
 const emit = defineEmits<{
-  load: [entry: HistoryEntry]
+  load: [entry: { id: string, title?: string | null, messages: any[] }]
 }>()
+
+const loadAllHistory = () => {
+  if (type === 'normal') {
+    return loadAllHistoryNormal()
+  } else {
+    return loadAllHistoryThread()
+  }
+}
 
 const selectedId = ref('')
 const items = ref(Object.values(loadAllHistory()))

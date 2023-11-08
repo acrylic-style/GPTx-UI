@@ -9,22 +9,24 @@
 </template>
 
 <script lang="ts" setup>
-import {HistoryEntry, JsonContent} from "@/util/history";
+import {contentToString, HistoryEntry} from "@/util/history";
+import {messageToString, ThreadHistoryEntry} from "@/util/thread_history";
 
-const { item } = defineProps<{
-  item: HistoryEntry
+const { type, item } = defineProps<{
+  type: 'normal' | 'thread'
+  item: HistoryEntry | ThreadHistoryEntry
   selected: boolean
   disabled: boolean
 }>()
 
-const getTitleForButton = (entry: HistoryEntry) => {
-  const content = entry.title || entry.messages.find(e => e.role === 'user').content
-  if (typeof content === 'string') {
+const getTitleForButton = (entry: HistoryEntry | ThreadHistoryEntry) => {
+  if (entry.title) return entry.title
+  if (type === 'normal') {
+    const content = contentToString((entry as HistoryEntry).messages.find(e => e.role === 'user'))
     return content.substring(0, Math.min(content.length, 250))
   } else {
-    const found = content.find(e => e.type === 'text') as unknown as JsonContent
-    if (found.type !== 'text') return '<empty>'
-    return found.text.substring(0, Math.min(found.text.length, 250))
+    const content = messageToString((entry as ThreadHistoryEntry).messages.find(e => e.role === 'user'))
+    return content.substring(0, Math.min(content.length, 250))
   }
 }
 </script>

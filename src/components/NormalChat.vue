@@ -1,13 +1,14 @@
 <template>
   <v-main>
     <SideBar
-      :entries="Object.values(loadAllHistory())"
       :disabled="generating"
       @load="onLoad"
+      type="normal"
       ref="sidebar"
     ></SideBar>
     <v-container class="fill-height">
       <v-responsive class="text-center fill-height">
+        <slot name="mode-selector" />
         <v-select
           v-model="model"
           :items="models"
@@ -90,7 +91,7 @@
 import SideBar from "@/components/ChatHistorySideBar.vue";
 import {ref} from "vue";
 import {apiUrl, fileToBase64DataUrl, SUMMARIZE_PROMPT} from "@/util/util";
-import {deleteHistory, HistoryEntry, JsonContent, loadAllHistory, saveHistory} from "@/util/history";
+import {deleteHistory, HistoryEntry, JsonContent, saveHistory} from "@/util/history";
 import ChatEntry from "@/components/ChatEntry.vue";
 
 const decoder = new TextDecoder()

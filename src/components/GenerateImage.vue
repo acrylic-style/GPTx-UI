@@ -49,12 +49,14 @@
           v-model="hdQuality"
           :label="'画質: ' + (hdQuality ? 'HD' : 'Standard')"
           color="primary"
+          :readonly="generating"
         ></v-switch>
         <v-switch
           v-if="model === 'dall-e-3'"
           v-model="naturalStyle"
           :label="'スタイル: ' + (naturalStyle ? 'Natural' : 'Vivid')"
           color="primary"
+          :readonly="generating"
         ></v-switch>
         <v-btn
           class="float-left"

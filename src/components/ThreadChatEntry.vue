@@ -43,6 +43,9 @@
                     />
                   </div>
                 </template>
+                <template v-else-if="call.type === 'retrieval'">
+                  <p>Retrieval: {{ call.id }}</p>
+                </template>
               </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>

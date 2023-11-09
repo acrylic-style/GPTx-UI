@@ -113,10 +113,10 @@
 <script lang="ts" setup>
 import SideBar from "@/components/ChatHistorySideBar.vue";
 import {ref} from "vue";
-import {apiUrl, SUMMARIZE_PROMPT} from "@/util/util";
+import {apiUrl, convertPdfToText, SUMMARIZE_PROMPT} from "@/util/util";
 import {deleteHistory, ThreadHistoryEntry, saveHistory, Message, Run} from "@/util/thread_history";
 import ThreadChatEntry from "@/components/ThreadChatEntry.vue";
-import { NodeHtmlMarkdown } from "node-html-markdown";
+import {NodeHtmlMarkdown} from "node-html-markdown";
 
 const models = ref(new Array<{ title: string, value: string }>())
 const model = ref('')
@@ -131,8 +131,13 @@ const retrieval = ref(true)
 const sidebar = ref(null)
 const functions = {
   fetch: {
-    action: async (url: string) => {
-      const text = await fetch(apiUrl('request'), { method: 'POST', body: url }).then(res => res.text())
+    action: async (url: string): Promise<string> => {
+      const urlObject = new URL(url)
+      const res = await fetch(apiUrl('request'), { method: 'POST', body: url })
+      if (urlObject.pathname.endsWith(".pdf")) {
+        return await convertPdfToText(await res.arrayBuffer())
+      }
+      const text = await res.text()
       if (text.startsWith('<!DOCTYPE html>') || text.startsWith('<!DOCTYPE HTML>')) {
         return NodeHtmlMarkdown.translate(text)
       }

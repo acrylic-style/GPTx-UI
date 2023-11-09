@@ -11,22 +11,28 @@
 <script lang="ts" setup>
 import {contentToString, HistoryEntry} from "@/util/history";
 import {messageToString, ThreadHistoryEntry} from "@/util/thread_history";
+import {GeneratedImageHistoryEntry} from "@/util/generated_image_history";
 
 const { type, item } = defineProps<{
-  type: 'normal' | 'thread'
-  item: HistoryEntry | ThreadHistoryEntry
+  type: 'normal' | 'thread' | 'image'
+  item: HistoryEntry | ThreadHistoryEntry | GeneratedImageHistoryEntry
   selected: boolean
   disabled: boolean
 }>()
 
-const getTitleForButton = (entry: HistoryEntry | ThreadHistoryEntry) => {
+const getTitleForButton = (entry: HistoryEntry | ThreadHistoryEntry | GeneratedImageHistoryEntry) => {
   if (entry.title) return entry.title
   if (type === 'normal') {
     const content = contentToString((entry as HistoryEntry).messages.find(e => e.role === 'user'))
     return content.substring(0, Math.min(content.length, 250))
-  } else {
+  } else if (type === 'thread') {
     const content = messageToString((entry as ThreadHistoryEntry).messages.find(e => e.role === 'user'))
     return content.substring(0, Math.min(content.length, 250))
+  } else if (type === 'image') {
+    const content = (entry as GeneratedImageHistoryEntry).prompt
+    return content.substring(0, Math.min(content.length, 250))
+  } else {
+    throw new Error(type)
   }
 }
 </script>

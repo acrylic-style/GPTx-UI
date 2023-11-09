@@ -441,10 +441,3 @@ fetch(apiUrl('models'))
     }
   })
 </script>
-
-<style scoped>
-/*noinspection CssUnusedSymbol*/
-.v-main {
-  display: flex;
-}
-</style>

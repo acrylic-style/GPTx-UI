@@ -10,6 +10,7 @@
       <v-responsive class="text-center fill-height">
         <slot name="mode-selector" />
         <v-select
+          label="モデル"
           v-model="model"
           :items="models"
           :hint="model"
@@ -196,10 +197,3 @@ fetch(apiUrl('models'))
     }
   })
 </script>
-
-<style scoped>
-/*noinspection CssUnusedSymbol*/
-.v-main {
-  display: flex;
-}
-</style>

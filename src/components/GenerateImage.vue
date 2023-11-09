@@ -101,6 +101,7 @@ const onModelChange = () => {
 
 const onLoad = (entry: GeneratedImageHistoryEntry) => {
   current.value = entry
+  prompt.value = entry.prompt || entry.title
 }
 
 const resetCurrent = () => {
@@ -114,6 +115,7 @@ const generate = async () => {
   generating.value = true
   try {
     current.value.id = crypto.randomUUID()
+    current.value.prompt = prompt.value
     current.value.title = prompt.value
     const response = await fetch(apiUrl('generate_image'), {
       method: 'POST',

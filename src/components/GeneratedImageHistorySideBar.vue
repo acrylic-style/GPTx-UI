@@ -22,14 +22,14 @@
 <script lang="ts" setup>
 import {ref} from "vue";
 import HistoryEntryButton from "@/components/HistoryEntryButton.vue";
-import {loadAllHistory} from "@/util/generated_image_history";
+import {GeneratedImageHistoryEntry, loadAllHistory} from "@/util/generated_image_history";
 
 defineProps<{
   disabled: boolean
 }>()
 
 const emit = defineEmits<{
-  load: [entry: { id: string, title?: string | null, prompt: string, images: string[] }]
+  load: [entry: GeneratedImageHistoryEntry]
 }>()
 
 const selectedId = ref('')

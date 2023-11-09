@@ -2,7 +2,10 @@ export type GeneratedImageHistoryEntry = {
   id: string
   title?: string | null
   prompt: string
-  images: string[]
+  images: Array<{
+    b64_json: string
+    revised_prompt: string
+  }>
 }
 
 export const saveHistory = (current: GeneratedImageHistoryEntry) => {

@@ -11,7 +11,7 @@
         <v-img
           v-for="(value, index) in current.images"
           :key="index"
-          :src="value"
+          :src="base64ToImageUrl(value.b64_json)"
         ></v-img>
         <v-select
           label="モデル"
@@ -78,10 +78,9 @@
 
 <script lang="ts" setup>
 import GeneratedImageHistorySideBar from "@/components/GeneratedImageHistorySideBar.vue";
-import {GeneratedImageHistoryEntry} from "@/util/generated_image_history";
+import {deleteHistory, GeneratedImageHistoryEntry, saveHistory} from "@/util/generated_image_history";
 import {ref} from "vue";
 import {apiUrl} from "@/util/util";
-import {deleteHistory} from "@/util/history";
 
 const sidebar = ref(null)
 const models = ref([])
@@ -109,6 +108,14 @@ const resetCurrent = () => {
   current.value.images = []
 }
 
+const btoh = (hex: string) =>
+  btoa(String.fromCharCode(...Array.apply(null, Array(hex.length / 2)).map((_: any, i: number) => parseInt(hex[i*2] + hex[i*2+1], 16))))
+
+const base64ToImageUrl = (b64_json: string): string => {
+  const hex = btoh(b64_json)
+  return `data:image/png;base64,${hex}`
+}
+
 const generate = async () => {
   generating.value = true
   try {
@@ -126,7 +133,9 @@ const generate = async () => {
       }),
     }).then(res => res.json())
     if (response.data) {
-      current.value.images.push(response.data.map(v => v.url))
+      current.value.images.push(...response.data)
+      saveHistory(current.value)
+      sidebar.value.update()
     } else {
       console.error('Invalid response', response)
     }

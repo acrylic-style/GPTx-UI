@@ -12,14 +12,14 @@ export const saveHistory = (current: GeneratedImageHistoryEntry) => {
   let save = localStorage.getItem('generated_images') || '{}'
   save = JSON.parse(save)
   save[current.id] = current
-  localStorage.setItem('save', JSON.stringify(save))
+  localStorage.setItem('generated_images', JSON.stringify(save))
 }
 
 export const deleteHistory = (id: string) => {
   let save = localStorage.getItem('generated_images') || '{}'
   save = JSON.parse(save)
   delete save[id]
-  localStorage.setItem('save', JSON.stringify(save))
+  localStorage.setItem('generated_images', JSON.stringify(save))
 }
 
 export const loadHistory = (id: string): GeneratedImageHistoryEntry | null => {

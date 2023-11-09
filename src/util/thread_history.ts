@@ -13,6 +13,19 @@ export type Run = {
   assistant_id: string
   thread_id: string
   status: 'queued' | 'in_progress' | 'requires_action' | 'cancelling' | 'cancelled' | 'failed' | 'completed' | 'expired'
+  required_action?: {
+    type: 'submit_tool_outputs'
+    submit_tool_outputs: {
+      tool_calls: Array<{
+        id: string
+        type: string
+        function: {
+          name: string
+          arguments: string
+        }
+      }>
+    }
+  } | null
   model: string | null
   instructions: string | null
   tools: any[]

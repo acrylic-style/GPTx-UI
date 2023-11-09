@@ -46,6 +46,23 @@
                 <template v-else-if="call.type === 'retrieval'">
                   <p>Retrieval: {{ call.id }}</p>
                 </template>
+                <template v-else-if="call.type === 'function'">
+                  <p>Function:</p>
+                  <p>名前: {{ call.function.name }}</p>
+                  <p>引数:</p>
+                  <pre><code class="language-json">{{ call.function.arguments }}</code></pre>
+                  <template v-if="call.function.output.length < 10000">
+                    <p>出力 ({{ call.function.output.length }}文字):</p>
+                    <pre><code>{{ call.function.output }}</code></pre>
+                  </template>
+                  <template v-else>
+                    <p>出力: {{ call.function.output.length }}文字</p>
+                    <v-btn
+                      icon="mdi-clipboard"
+                      @click="copyToClipboard(call.function.output)"
+                    ></v-btn>
+                  </template>
+                </template>
               </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -71,7 +88,7 @@
     <div class="flex-row">
       <v-btn
         icon="mdi-clipboard"
-        @click="copyToClipboard()"
+        @click="copyToClipboard(messageToString(content))"
       ></v-btn>
       <v-btn
         v-if="allowRemove"
@@ -146,8 +163,8 @@ const compile = (text: string): string => {
   return DOMPurify.sanitize(marked(text))
 }
 
-const copyToClipboard = () => {
-  navigator.clipboard.writeText(messageToString(props.content))
+const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text)
 }
 
 onMounted(() => scheduleHighlight())

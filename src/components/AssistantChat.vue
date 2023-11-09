@@ -51,6 +51,13 @@
           label="ファイル"
           :disabled="generating"
         ></v-file-input>
+        <v-select
+          label="Functions"
+          :items="Object.keys(functions)"
+          :multiple="true"
+          v-model="selectedFunctions"
+          :readonly="generating"
+        ></v-select>
         <v-btn
           class="float-left"
           color="blue"
@@ -77,7 +84,7 @@
           class="float-right"
           color="blue"
           append-icon="mdi-send"
-          :disabled="generating || userPrompt.length === 0 || !isSelectedValidModel()"
+          :disabled="generating || (userPrompt.length === 0 && current.messages[current.messages.length - 1]?.role !== 'user') || !isSelectedValidModel()"
           @click="generate()"
         >生成</v-btn>
         <v-checkbox
@@ -109,6 +116,7 @@ import {ref} from "vue";
 import {apiUrl, SUMMARIZE_PROMPT} from "@/util/util";
 import {deleteHistory, ThreadHistoryEntry, saveHistory, Message, Run} from "@/util/thread_history";
 import ThreadChatEntry from "@/components/ThreadChatEntry.vue";
+import { NodeHtmlMarkdown } from "node-html-markdown";
 
 const models = ref(new Array<{ title: string, value: string }>())
 const model = ref('')
@@ -121,6 +129,44 @@ const autoSave = ref(true)
 const codeInterpreter = ref(true)
 const retrieval = ref(true)
 const sidebar = ref(null)
+const functions = {
+  fetch: {
+    action: async (url: string) => {
+      const text = await fetch(apiUrl('request'), { method: 'POST', body: url }).then(res => res.text())
+      if (text.startsWith('<!DOCTYPE html>') || text.startsWith('<!DOCTYPE HTML>')) {
+        return NodeHtmlMarkdown.translate(text)
+      }
+      return text
+    },
+    description: 'Fetch a single web page; returns raw text as result',
+    parameters: {
+      type: 'object',
+      properties: {
+        url: { type: 'string', description: 'The URL to fetch' },
+      },
+      required: ['url'],
+    },
+  },
+  search: {
+    action: async (query: string) => {
+      const json = await fetch(apiUrl('search'), { method: 'POST', body: query }).then(res => res.json())
+      if (json.kind) {
+        return (json.items as any[]).map(item => `- [${item.title}](${item.link}): ${item.snippet}`).join('\n')
+      } else {
+        return 'Search failed (API returned invalid response)'
+      }
+    },
+    description: 'Google Search',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Search query' },
+      },
+      required: ['query'],
+    },
+  }
+}
+const selectedFunctions = ref(Object.keys(functions))
 
 const onModelChange = () => {
   localStorage.setItem('assistant-model', model.value)
@@ -176,6 +222,7 @@ const getRun = (runId: string) =>
     })
 
 const updateThreadWithMessages = async (messages: Array<Message>) => {
+  current.value.messages = current.value.messages.filter((e, i, a) => a.indexOf(a.find(v => e.id === v.id)) === i)
   for (const message of messages.sort((a, b) => a.created_at - b.created_at)) {
     const existingMessage = current.value.messages.find(e => e.id === message.id)
     if (existingMessage) {
@@ -209,16 +256,36 @@ const updateThreadWithMessages = async (messages: Array<Message>) => {
 
 const awaitRun = (run: Run) => {
   return new Promise<Run>((resolve, reject) => {
+    let paused = false
     const interval = setInterval(() => {
+      if (paused) return
+      paused = true
       updateCurrentThread()
       fetch(apiUrl(`threads/${run.thread_id}/runs/${run.id}`))
         .then(res => res.json())
-        .then((res: Run) => {
+        .then(async (res: Run) => {
           if (!res.status) {
             clearInterval(interval)
             return reject(JSON.stringify(res))
           }
-          if (res.status !== 'queued' && res.status !== 'in_progress') {
+          if (res.status === 'requires_action' && res.required_action?.type === 'submit_tool_outputs') {
+            const outputs = await Promise.all(res.required_action.submit_tool_outputs.tool_calls.map(async (toolCall) => {
+              const args = Object.values(JSON.parse(toolCall.function.arguments))
+              return {
+                tool_call_id: toolCall.id,
+                output: await functions[toolCall.function.name].action.apply(null, args)
+              }
+            }))
+            console.log('Submitting tool outputs', outputs)
+            await fetch(apiUrl(`threads/${run.thread_id}/runs/${run.id}/submit_tool_outputs`), {
+              method: 'POST',
+              body: JSON.stringify(outputs)
+            }).then(res => {
+              if (res.status !== 200) {
+                throw new Error('Invalid response: ' + res.statusText)
+              }
+            })
+          } else if (res.status !== 'queued' && res.status !== 'in_progress') {
             clearInterval(interval)
             resolve(res)
           }
@@ -227,6 +294,7 @@ const awaitRun = (run: Run) => {
           clearInterval(interval)
           reject(e)
         })
+        .finally(() => paused = false)
     }, 1000)
   })
 }
@@ -239,6 +307,12 @@ const buildToolsArray = () => {
   if (retrieval.value) {
     arr.push({ type: 'retrieval' })
   }
+  selectedFunctions.value.forEach(name => {
+    arr.push({
+      type: 'function',
+      function: {name,  ...functions[name]}
+    })
+  })
   return arr
 }
 
@@ -285,16 +359,33 @@ const generate = async () => {
   generating.value = true
   try {
     let run: Run
-    if (current.value.messages.length === 0) {
-      run = await generateFirst()
+    let consumeUserInput = true
+    if (current.value.messages[current.value.messages.length - 1]?.role === 'user') {
+      consumeUserInput = false
+      run = await fetch(apiUrl(`threads/${current.value.id}/runs`), {
+        method: 'POST',
+        body: JSON.stringify({
+          model: model.value,
+          instructions: systemPrompt.value || null,
+          tools: buildToolsArray(),
+        })
+      }).then(res => res.json())
+    } else if (userPrompt.value) {
+      if (current.value.messages.length === 0) {
+        run = await generateFirst()
+      } else {
+        run = await generateMore();
+      }
     } else {
-      run = await generateMore();
+      return
     }
     await awaitRun(run)
     await updateCurrentThread()
     const userPromptBackup = userPrompt.value
-    userPrompt.value = ''
-    files.value = []
+    if (consumeUserInput) {
+      userPrompt.value = ''
+      files.value = []
+    }
     if (!current.value.title) {
       await fetch(apiUrl('generate'), {
         method: 'POST',
@@ -315,6 +406,7 @@ const generate = async () => {
       })
     } else if (autoSave.value) {
       saveHistory(current.value)
+      sidebar.value.update()
     }
   } finally {
     generating.value = false

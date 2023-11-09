@@ -69,12 +69,12 @@
         </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
-    <div v-html="compile(messageToString(content))"></div>
+    <div ref="message" v-html="compile(messageToString(content))"></div>
     <v-img
       v-for="image in getFiles()"
       max-height="600"
       :key="image.image_file.file_id"
-      :src="apiUrl('/files/' + image.image_file.file_id + '/content')"
+      :src="apiUrl('files/' + image.image_file.file_id + '/content')"
     ></v-img>
     <v-expansion-panels v-if="content.files">
       <v-expansion-panel title="アップロードされたファイル">
@@ -86,6 +86,10 @@
       </v-expansion-panel>
     </v-expansion-panels>
     <div class="flex-row">
+      <v-btn
+        icon="mdi-math-integral"
+        @click="mathJaxTypeSet()"
+      ></v-btn>
       <v-btn
         icon="mdi-clipboard"
         @click="copyToClipboard(messageToString(content))"
@@ -108,10 +112,12 @@ import * as DOMPurify from 'isomorphic-dompurify'
 import hljs from 'highlight.js'
 import {Message, MessageContentImageFile, messageToString} from "@/util/thread_history";
 import {apiUrl} from "@/util/util";
-import {onMounted} from "vue";
+import {onMounted, ref} from "vue";
+
+const message = ref(null)
 
 marked.use({
-  gfm: true
+  gfm: true,
 })
 
 const props = defineProps<{
@@ -155,7 +161,14 @@ const getIconForRole = (role: 'system' | 'user' | 'assistant') => {
 }
 
 const scheduleHighlight = () => {
-  requestAnimationFrame(() => hljs.highlightAll())
+  requestAnimationFrame(() => {
+    hljs.highlightAll()
+  })
+}
+
+const mathJaxTypeSet = () => {
+  // eslint-disable-next-line no-undef
+  MathJax.typeset([message.value])
 }
 
 const compile = (text: string): string => {

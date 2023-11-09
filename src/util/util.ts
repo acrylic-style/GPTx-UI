@@ -8,7 +8,7 @@ export const apiUrl = (path: string) => {
   if (process.env.NODE_ENV === 'production') {
     return `/api/${path}`
   } else {
-    return `http://localhost:8080/${path}`
+    return `http://localhost:8787/api/${path}`
   }
 }
 

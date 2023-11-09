@@ -113,7 +113,7 @@ const getToolCalls = () => {
         return calls
       }
       calls.length = 0
-    } else if (value.type === 'code_interpreter') {
+    } else if (value.type === 'tool_calls') {
       calls.push(value)
     }
   }

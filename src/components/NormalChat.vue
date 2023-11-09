@@ -34,18 +34,18 @@
           @click="systemPrompt += 'あなたは「ずんだもん」というキャラクターのように話してください。ずんだもんは幼い女の子で、無邪気な性格をしており、口調は強気であり、「〜のだ」「〜なのだ」を語尾につけます。'"
           :disabled="generating"
         >ずんだもん</v-btn>
-        <v-textarea
-          label="入力 (User)"
-          v-model="userPrompt"
-          :auto-grow="true"
-          :disabled="generating"
-        ></v-textarea>
         <chat-entry
           v-for="(item, index) in current.messages"
           :key="index"
           :content="item"
           @remove="() => current.messages.splice(index, 1)"
         />
+        <v-textarea
+          label="入力 (User)"
+          v-model="userPrompt"
+          :auto-grow="true"
+          :disabled="generating"
+        ></v-textarea>
         <v-file-input
           v-if="model.includes('vision')"
           v-model="images"

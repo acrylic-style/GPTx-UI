@@ -1,4 +1,7 @@
-# base
+# GPTx
+
+![image](https://github.com/acrylic-style/GPTx-UI/assets/19150229/fcfd12f1-c629-4635-a3db-29fcd4b3673d)
+
 
 ## Project setup
 

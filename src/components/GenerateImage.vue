@@ -1,10 +1,18 @@
 <template>
   <v-main>
-    <generated-image-history-side-bar
-      :disabled="generating"
-      @load="onLoad"
-      ref="sidebar"
-    ></generated-image-history-side-bar>
+    <v-navigation-drawer
+      :model-value="leftDrawer"
+      @update:model-value="$emit('update:leftDrawer', $event.target.value)"
+      location="left"
+      :temporary="false"
+      width="350"
+    >
+      <generated-image-history-side-bar
+        :disabled="generating"
+        @load="onLoad"
+        ref="sidebar"
+      ></generated-image-history-side-bar>
+    </v-navigation-drawer>
     <v-container class="fill-height">
       <v-responsive class="text-center fill-height">
         <slot name="mode-selector" />
@@ -127,6 +135,7 @@ const generate = async () => {
         size: resolution.value,
         style: model.value === 'dall-e-3' ? (naturalStyle.value ? 'natural' : 'vivid') : undefined,
       }),
+      credentials: 'include',
     }).then(res => res.json())
     if (response.data) {
       current.value.images.push(...response.data)
@@ -140,7 +149,7 @@ const generate = async () => {
   }
 }
 
-fetch(apiUrl('image_models'))
+fetch(apiUrl('image_models'), {credentials: 'include'})
   .then(res => res.json())
   .then(value => Object.keys(value).map(k => ({ value: k, title: value[k].name, resolutions: value[k].resolutions })))
   .then(array => models.value = array)
@@ -151,4 +160,12 @@ fetch(apiUrl('image_models'))
       model.value = modelOnLocalStorage
     }
   })
+
+defineProps<{
+  leftDrawer: boolean
+}>()
+defineEmits<{
+  // eslint-disable-next-line no-unused-vars
+  'update:leftDrawer': (value: boolean) => void
+}>()
 </script>

@@ -1,75 +1,61 @@
 <template>
   <v-app>
-    <normal-chat v-if="mode === 'chat'">
-      <template v-slot:mode-selector>
-        <v-select
-          label="モード"
-          v-model="mode"
-          :items="modes"
-          item-title="title"
-          item-value="value"
-          @update:model-value="onModeChange()"
-        ></v-select>
-      </template>
-    </normal-chat>
-    <assistant-chat v-if="mode === 'assistant'">
-      <template v-slot:mode-selector>
-        <v-select
-          label="モード"
-          v-model="mode"
-          :items="modes"
-          item-title="title"
-          item-value="value"
-          @update:model-value="onModeChange()"
-        ></v-select>
-      </template>
-    </assistant-chat>
-    <generate-image v-if="mode === 'generate_image'">
-      <template v-slot:mode-selector>
-        <v-select
-          label="モード"
-          v-model="mode"
-          :items="modes"
-          item-title="title"
-          item-value="value"
-          @update:model-value="onModeChange()"
-        ></v-select>
-      </template>
-    </generate-image>
+    <mode-list @set-screen="s => screen = s" />
+    <v-overlay
+      :model-value="screen !== 'ok'"
+      :persistent="true"
+      transition="fade-transition"
+      class="align-center justify-center"
+    >
+      <v-progress-circular v-if="screen === 'loading' || screen === 'ok'" indeterminate></v-progress-circular>
+      <login-screen v-else-if="screen === 'login'" />
+      <invite-code-screen v-else-if="screen === 'invite-code'" />
+      <stripe-screen v-else-if="screen === 'stripe'" />
+      <stripe2-screen v-else-if="screen === 'stripe2'" />
+      <usage-screen v-else-if="screen === 'usage'" @set-screen="s => screen = s" />
+    </v-overlay>
   </v-app>
 </template>
 
-<script setup>
-import NormalChat from "@/components/NormalChat.vue";
+<script lang="ts" setup>
+import ModeList from "@/components/ChatApp.vue";
 import {onMounted, ref} from "vue";
-import AssistantChat from "@/components/AssistantChat.vue";
-import GenerateImage from "@/components/GenerateImage.vue";
+import {apiUrl} from "@/util/util";
+import LoginScreen from "@/components/LoginScreen.vue";
+import InviteCodeScreen from "@/components/InviteCodeScreen.vue";
+import StripeScreen from "@/components/StripeScreen.vue";
+import UsageScreen from "@/components/UsageScreen.vue";
+import Stripe2Screen from "@/components/Stripe2Screen.vue";
 
-const modes = [
-  { title: 'アシスタント', value: 'assistant' },
-  { title: 'チャット', value: 'chat' },
-  { title: '画像生成', value: 'generate_image' },
-]
-const mode = ref('chat')
+const screen = ref('loading')
 
-const onModeChange = () => {
-  localStorage.setItem('mode', mode.value)
-}
-
-onMounted(() => {
-  const savedMode = localStorage.getItem('mode')
-  if (savedMode) {
-    mode.value = savedMode
+onMounted(async () => {
+  const response = await fetch(apiUrl('me'), {credentials: 'include'})
+  if (response.status === 401) {
+    // not logged in
+    screen.value = 'login'
+  } else if (response.status === 200) {
+    const json: any = await response.json()
+    if (!json.active) {
+      // requires invite code
+      screen.value = 'invite-code'
+    } else if (!json.stripe_customer_id) {
+      // requires subscription to be purchased
+      screen.value = 'stripe'
+    } else if (json.stripe.not_subscribed.length >= 1) {
+      // requires new subscription to be purchased
+      screen.value = 'stripe2'
+    } else {
+      // everything is ok
+      screen.value = 'ok'
+    }
   }
 })
 </script>
 
 <style>
-body, select {
-  font-family: "JetBrains Mono", 'monospace';
-}
-
-.v-main {
-  display: flex;
+.half {
+  width: 50%;
+  max-width: 50%;
 }
 </style>

@@ -1,11 +1,19 @@
 <template>
   <v-main>
-    <SideBar
-      :disabled="generating"
-      @load="onLoad"
-      type="normal"
-      ref="sidebar"
-    ></SideBar>
+    <v-navigation-drawer
+      :model-value="leftDrawer"
+      @update:model-value="$emit('update:leftDrawer', $event.target.value)"
+      location="left"
+      :temporary="false"
+      width="350"
+    >
+      <side-bar
+        :disabled="generating"
+        @load="onLoad"
+        type="normal"
+        ref="sidebar"
+      ></side-bar>
+    </v-navigation-drawer>
     <v-container class="fill-height">
       <v-responsive class="text-center fill-height">
         <slot name="mode-selector" />
@@ -147,6 +155,7 @@ const generate = async () => {
         model: model.value,
         content: current.value.messages,
       }),
+      credentials: 'include',
     }).then(async (res) => {
       let currentContent = ''
       current.value.messages.push({role: 'assistant', content: currentContent})
@@ -167,7 +176,8 @@ const generate = async () => {
               { role: 'system', content: SUMMARIZE_PROMPT },
               { role: 'user', content: userPromptBackup },
             ]
-          })
+          }),
+          credentials: 'include',
         }).then(res => res.text()).then(summary => {
           if ((summary.startsWith('"') && summary.endsWith('"')) || (summary.startsWith('「') && summary.endsWith('」'))) {
             summary = summary.substring(1, summary.length - 1)
@@ -185,7 +195,7 @@ const generate = async () => {
   }
 }
 
-fetch(apiUrl('models'))
+fetch(apiUrl('models'), {credentials: 'include'})
   .then(res => res.json())
   .then(value => Object.keys(value).map(k => ({ value: k, title: value[k] })))
   .then(array => models.value = array)
@@ -196,4 +206,12 @@ fetch(apiUrl('models'))
       model.value = modelOnLocalStorage
     }
   })
+
+defineProps<{
+  leftDrawer: boolean
+}>()
+defineEmits<{
+  // eslint-disable-next-line no-unused-vars
+  'update:leftDrawer': (value: boolean) => void
+}>()
 </script>

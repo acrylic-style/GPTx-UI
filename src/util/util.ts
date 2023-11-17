@@ -1,6 +1,4 @@
 import * as process from 'process'
-import {TextItem, TypedArray} from "pdfjs-dist/types/src/display/api";
-import {getDocument, GlobalWorkerOptions} from "pdfjs-dist";
 
 export const SUMMARIZE_PROMPT = 'Summarize the prompt in around 40 characters for English, and 15 characters for Japanese. You only have to output the result in the appropriate language (If English was provided, then output in English, and do NOT output Japanese). Provide only one summary, and do not provide more than one summary.'
 
@@ -29,7 +27,8 @@ export async function fileToBase64DataUrl(file: File): Promise<string> {
   });
 }
 
-export const convertPdfToText = async (urlOrData: string | ArrayBuffer | TypedArray) => {
+export const convertPdfToText = async (urlOrData: string | ArrayBuffer) => {
+  const {getDocument, GlobalWorkerOptions} = await import("pdfjs-dist")
   GlobalWorkerOptions.workerSrc = await import('pdfjs-dist/build/pdf.worker.min.mjs')
   const pdf = getDocument(urlOrData)
   let pdf1 = await pdf.promise;
@@ -39,7 +38,7 @@ export const convertPdfToText = async (urlOrData: string | ArrayBuffer | TypedAr
     const page = pdf1.getPage(i)
     promises.push(page.then(async (page) => {
       const text = await page.getTextContent()
-      return text.items.map(s => (s as TextItem).str).join('')
+      return text.items.map(s => s.str).join('')
     }))
   }
   let texts = await Promise.all(promises);

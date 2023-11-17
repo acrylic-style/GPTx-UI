@@ -1,11 +1,19 @@
 <template>
   <v-main>
-    <SideBar
-      :disabled="generating"
-      @load="onLoad"
-      type="thread"
-      ref="sidebar"
-    ></SideBar>
+    <v-navigation-drawer
+      :model-value="leftDrawer"
+      @update:model-value="$emit('update:leftDrawer', $event.target.value)"
+      location="left"
+      :temporary="false"
+      width="350"
+    >
+      <side-bar
+        :disabled="generating"
+        @load="onLoad"
+        type="thread"
+        ref="sidebar"
+      ></side-bar>
+    </v-navigation-drawer>
     <v-container class="fill-height">
       <v-responsive class="text-center fill-height">
         <slot name="mode-selector" />
@@ -84,6 +92,7 @@
           class="float-right"
           color="blue"
           append-icon="mdi-send"
+          :loading="generating"
           :disabled="generating || (userPrompt.length === 0 && current.messages[current.messages.length - 1]?.role !== 'user') || !isSelectedValidModel()"
           @click="generate()"
         >生成</v-btn>
@@ -130,10 +139,28 @@ const codeInterpreter = ref(true)
 const retrieval = ref(true)
 const sidebar = ref(null)
 const functions = {
-  fetch: {
+  search: {
+    action: async (query: string) => {
+      const json = await fetch(apiUrl('search'), { method: 'POST', body: query, credentials: 'include' }).then(res => res.json())
+      if (json.kind) {
+        return (json.items as any[]).map(item => `- [${item.title}](${item.link}): ${item.snippet}`).join('\n')
+      } else {
+        return 'Search failed (API returned invalid response)'
+      }
+    },
+    description: 'Google Search',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Search query' },
+      },
+      required: ['query'],
+    },
+  },
+  fetch_no_cors: {
     action: async (url: string): Promise<string> => {
       const urlObject = new URL(url)
-      const res = await fetch(apiUrl('request'), { method: 'POST', body: url })
+      const res = await fetch(urlObject)
       if (urlObject.pathname.endsWith(".pdf")) {
         return await convertPdfToText(await res.arrayBuffer())
       }
@@ -152,26 +179,8 @@ const functions = {
       required: ['url'],
     },
   },
-  search: {
-    action: async (query: string) => {
-      const json = await fetch(apiUrl('search'), { method: 'POST', body: query }).then(res => res.json())
-      if (json.kind) {
-        return (json.items as any[]).map(item => `- [${item.title}](${item.link}): ${item.snippet}`).join('\n')
-      } else {
-        return 'Search failed (API returned invalid response)'
-      }
-    },
-    description: 'Google Search',
-    parameters: {
-      type: 'object',
-      properties: {
-        query: { type: 'string', description: 'Search query' },
-      },
-      required: ['query'],
-    },
-  }
 }
-const selectedFunctions = ref(Object.keys(functions))
+const selectedFunctions = ref([])
 
 const onModelChange = () => {
   localStorage.setItem('assistant-model', model.value)
@@ -188,14 +197,14 @@ const resetCurrent = () => {
 }
 
 const deleteThread = () => {
-  fetch(apiUrl(`threads/${current.value.id}`), {method: 'DELETE'})
+  fetch(apiUrl(`threads/${current.value.id}`), {method: 'DELETE', credentials: 'include'})
   deleteHistory(current.value.id)
   resetCurrent()
   sidebar.value.update()
 }
 
 const updateCurrentThread = async () => {
-  return await fetch(apiUrl(`threads/${current.value.id}/messages`))
+  return await fetch(apiUrl(`threads/${current.value.id}/messages`), {credentials: 'include'})
     .then(res => res.json())
     .then(async res => {
       if (res.data) {
@@ -205,7 +214,7 @@ const updateCurrentThread = async () => {
 }
 
 const getRunSteps = (runId: string) =>
-  fetch(apiUrl(`threads/${current.value.id}/runs/${runId}/steps`))
+  fetch(apiUrl(`threads/${current.value.id}/runs/${runId}/steps`), {credentials: 'include'})
     .then(res => res.json())
     .then(res => {
       if (res.data) {
@@ -216,7 +225,7 @@ const getRunSteps = (runId: string) =>
     })
 
 const getRun = (runId: string) =>
-  fetch(apiUrl(`threads/${current.value.id}/runs/${runId}`))
+  fetch(apiUrl(`threads/${current.value.id}/runs/${runId}`), {credentials: 'include'})
     .then(res => res.json())
     .then((res: Run) => {
       if (res.status) {
@@ -234,7 +243,7 @@ const updateThreadWithMessages = async (messages: Array<Message>) => {
       existingMessage.content = message.content
       if (existingMessage.file_ids && existingMessage.file_ids.length > 0 && !existingMessage.files) {
         existingMessage.files =
-          (await Promise.all(existingMessage.file_ids.map(id => fetch(apiUrl('files/' + id)).then(res => res.json()))))
+          (await Promise.all(existingMessage.file_ids.map(id => fetch(apiUrl('files/' + id), {credentials: 'include'}).then(res => res.json()))))
             .filter(e => e.filename)
       }
       if (existingMessage.run_id) {
@@ -251,7 +260,7 @@ const updateThreadWithMessages = async (messages: Array<Message>) => {
       }
       if (message.file_ids && message.file_ids.length > 0) {
         message.files =
-          (await Promise.all(message.file_ids.map(id => fetch(apiUrl('files/' + id)).then(res => res.json()))))
+          (await Promise.all(message.file_ids.map(id => fetch(apiUrl('files/' + id), {credentials: 'include'}).then(res => res.json()))))
             .filter(e => e.filename)
       }
       current.value.messages.push(message)
@@ -266,7 +275,7 @@ const awaitRun = (run: Run) => {
       if (paused) return
       paused = true
       updateCurrentThread()
-      fetch(apiUrl(`threads/${run.thread_id}/runs/${run.id}`))
+      fetch(apiUrl(`threads/${run.thread_id}/runs/${run.id}`), {credentials: 'include'})
         .then(res => res.json())
         .then(async (res: Run) => {
           if (!res.status) {
@@ -284,7 +293,8 @@ const awaitRun = (run: Run) => {
             console.log('Submitting tool outputs', outputs)
             await fetch(apiUrl(`threads/${run.thread_id}/runs/${run.id}/submit_tool_outputs`), {
               method: 'POST',
-              body: JSON.stringify(outputs)
+              body: JSON.stringify(outputs),
+              credentials: 'include',
             }).then(res => {
               if (res.status !== 200) {
                 throw new Error('Invalid response: ' + res.statusText)
@@ -333,7 +343,8 @@ const generateFirst = async (): Promise<Run> => {
         name: file.name,
         data: Array.from(new Int8Array(await file.arrayBuffer()))
       })))
-    })
+    }),
+    credentials: 'include',
   }).then(res => res.json())
   if (!run.thread_id) throw new Error(`Received invalid response: ${JSON.stringify(run)}`)
   current.value.id = run.thread_id
@@ -346,7 +357,8 @@ const generateMore = async (): Promise<Run> => {
     body: JSON.stringify({
       role: 'user',
       content: userPrompt.value,
-    })
+    }),
+    credentials: 'include',
   }).then(res => res.json())
   if (!message.content) throw new Error(`Received invalid response: ${JSON.stringify(message)}`)
   current.value.messages.push(message)
@@ -356,7 +368,8 @@ const generateMore = async (): Promise<Run> => {
       model: model.value,
       instructions: systemPrompt.value || null,
       tools: buildToolsArray(),
-    })
+    }),
+    credentials: 'include',
   }).then(res => res.json())
 }
 
@@ -373,7 +386,8 @@ const generate = async () => {
           model: model.value,
           instructions: systemPrompt.value || null,
           tools: buildToolsArray(),
-        })
+        }),
+        credentials: 'include',
       }).then(res => res.json())
     } else if (userPrompt.value) {
       if (current.value.messages.length === 0) {
@@ -400,7 +414,8 @@ const generate = async () => {
             {role: 'system', content: SUMMARIZE_PROMPT},
             {role: 'user', content: userPromptBackup},
           ]
-        })
+        }),
+        credentials: 'include',
       }).then(res => res.text()).then(summary => {
         if ((summary.startsWith('"') && summary.endsWith('"')) || (summary.startsWith('「') && summary.endsWith('」'))) {
           summary = summary.substring(1, summary.length - 1)
@@ -429,7 +444,7 @@ const filterModels = (): Array<{ title: string, value: string }> => {
 
 const isSelectedValidModel = () => filterModels().find(e => e.value === model.value)
 
-fetch(apiUrl('models'))
+fetch(apiUrl('models'), {credentials: 'include'})
   .then(res => res.json())
   .then(value => Object.keys(value).map(k => ({ value: k, title: value[k] })))
   .then(array => models.value = array)
@@ -440,4 +455,12 @@ fetch(apiUrl('models'))
       model.value = modelOnLocalStorage
     }
   })
+
+defineProps<{
+  leftDrawer: boolean
+}>()
+defineEmits<{
+  // eslint-disable-next-line no-unused-vars
+  'update:leftDrawer': (value: boolean) => void
+}>()
 </script>

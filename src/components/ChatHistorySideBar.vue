@@ -56,7 +56,6 @@ defineExpose({update})
 <style scoped>
 .history {
   height: 100%;
-  width: 20%;
   display: flex;
   flex-direction: column;
   font-family: "JetBrains Mono", 'monospace';

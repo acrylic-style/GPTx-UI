@@ -31,19 +31,19 @@
         </template>
         <v-list-item-title>ログアウト</v-list-item-title>
       </v-list-item>
-      <v-list-item @click="redirect(apiUrl('terms'))">
+      <v-list-item @click="subScreen = 'terms'">
         <template v-slot:prepend>
           <v-icon icon="mdi-book"></v-icon>
         </template>
         <v-list-item-title>利用規約</v-list-item-title>
       </v-list-item>
-      <v-list-item @click="redirect(apiUrl('privacy-policy'))">
+      <v-list-item @click="subScreen = 'privacy-policy'">
         <template v-slot:prepend>
           <v-icon icon="mdi-book"></v-icon>
         </template>
         <v-list-item-title>プライバシーポリシー</v-list-item-title>
       </v-list-item>
-      <v-list-item @click="redirect(apiUrl('sct'))">
+      <v-list-item @click="subScreen = 'sct'">
         <template v-slot:prepend>
           <v-icon icon="mdi-book"></v-icon>
         </template>
@@ -87,6 +87,18 @@
       ></v-select>
     </template>
   </generate-image>
+  <v-overlay
+    :model-value="subScreen !== ''"
+    @after-leave="subScreen = ''"
+    transition="fade-transition"
+    class="align-center justify-center"
+    style="overflow: initial; overflow-y: scroll; display: block;"
+    scroll-strategy="none"
+  >
+    <fetch-screen v-if="subScreen === 'terms'" title="利用規約" :url="apiUrl('terms')" @close="subScreen = ''" />
+    <fetch-screen v-if="subScreen === 'privacy-policy'" title="プライバシーポリシー" :url="apiUrl('privacy-policy')" @close="subScreen = ''" />
+    <fetch-screen v-if="subScreen === 'sct'" title="特定商取引法に基づく表記" :url="apiUrl('sct')" @close="subScreen = ''" />
+  </v-overlay>
 </template>
 
 <script lang="ts" setup>
@@ -95,6 +107,7 @@ import {onMounted, ref} from "vue";
 import AssistantChat from "@/components/AssistantChat.vue";
 import GenerateImage from "@/components/GenerateImage.vue";
 import {apiUrl} from "@/util/util";
+import FetchScreen from "@/components/FetchScreen.vue";
 
 const modes = [
   {title: 'アシスタント', value: 'assistant'},
@@ -104,6 +117,7 @@ const modes = [
 const mode = ref('chat')
 const leftDrawer = ref(false)
 const rightDrawer = ref(false)
+const subScreen = ref('')
 
 const onModeChange = () => {
   localStorage.setItem('mode', mode.value)
@@ -114,7 +128,7 @@ const redirect = (url: string) => {
 }
 
 defineEmits<{
-  setScreen: string
+  setScreen: [string]
 }>()
 
 onMounted(() => {

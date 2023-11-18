@@ -65,7 +65,7 @@ const modelNames = ref({
 })
 
 defineEmits<{
-  setScreen: string
+  setScreen: [string]
 }>()
 
 onMounted(async () => {

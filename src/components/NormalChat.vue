@@ -211,7 +211,6 @@ defineProps<{
   leftDrawer: boolean
 }>()
 defineEmits<{
-  // eslint-disable-next-line no-unused-vars
-  'update:leftDrawer': (value: boolean) => void
+  'update:leftDrawer': [boolean]
 }>()
 </script>

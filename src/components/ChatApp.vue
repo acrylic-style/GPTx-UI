@@ -31,6 +31,12 @@
         </template>
         <v-list-item-title>ログアウト</v-list-item-title>
       </v-list-item>
+      <v-list-item @click="subScreen = 'pricing'">
+        <template v-slot:prepend>
+          <v-icon icon="mdi-book"></v-icon>
+        </template>
+        <v-list-item-title>料金</v-list-item-title>
+      </v-list-item>
       <v-list-item @click="subScreen = 'terms'">
         <template v-slot:prepend>
           <v-icon icon="mdi-book"></v-icon>
@@ -95,6 +101,7 @@
     style="overflow: initial; overflow-y: scroll; display: block;"
     scroll-strategy="none"
   >
+    <fetch-screen v-if="subScreen === 'pricing'" title="料金" :url="apiUrl('pricing')" @close="subScreen = ''" />
     <fetch-screen v-if="subScreen === 'terms'" title="利用規約" :url="apiUrl('terms')" @close="subScreen = ''" />
     <fetch-screen v-if="subScreen === 'privacy-policy'" title="プライバシーポリシー" :url="apiUrl('privacy-policy')" @close="subScreen = ''" />
     <fetch-screen v-if="subScreen === 'sct'" title="特定商取引法に基づく表記" :url="apiUrl('sct')" @close="subScreen = ''" />

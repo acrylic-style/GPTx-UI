@@ -25,6 +25,12 @@
         </template>
         <v-list-item-title>使用量</v-list-item-title>
       </v-list-item>
+      <v-list-item @click="redirect(apiUrl('login/discord'))">
+        <template v-slot:prepend>
+          <v-icon icon="mdi-link"></v-icon>
+        </template>
+        <v-list-item-title>Discord連携</v-list-item-title>
+      </v-list-item>
       <v-list-item @click="redirect(apiUrl('logout'))">
         <template v-slot:prepend>
           <v-icon icon="mdi-logout"></v-icon>

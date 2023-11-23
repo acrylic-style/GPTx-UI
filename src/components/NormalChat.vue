@@ -43,6 +43,12 @@
           @click="systemPrompt += 'あなたは「ずんだもん」というキャラクターのように話してください。ずんだもんは幼い女の子で、無邪気な性格をしており、口調は強気であり、「〜のだ」「〜なのだ」を語尾につけます。'"
           :disabled="generating"
         >ずんだもん</v-btn>
+        <v-btn
+          color="blue"
+          prepend-icon="mdi-floppy"
+          @click="updateDefaultInstruction()"
+          :disabled="generating"
+        >Discord用の命令を保存</v-btn>
         <chat-entry
           v-for="(item, index) in current.messages"
           :key="index"
@@ -193,6 +199,14 @@ const generate = async () => {
   } finally {
     generating.value = false
   }
+}
+
+const updateDefaultInstruction = async () => {
+  await fetch(apiUrl('update_default_instruction'), {
+    method: 'POST',
+    body: systemPrompt.value || '',
+    credentials: 'include',
+  })
 }
 
 fetch(apiUrl('models'), {credentials: 'include'})

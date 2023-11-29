@@ -3,9 +3,10 @@
     <mode-list @set-screen="s => screen = s" />
     <v-overlay
       :model-value="screen !== 'ok'"
-      :persistent="true"
+      :persistent="screen !== 'usage'"
       transition="fade-transition"
       class="align-center justify-center"
+      @after-leave="screen = 'ok'"
     >
       <v-progress-circular v-if="screen === 'loading' || screen === 'ok'" indeterminate></v-progress-circular>
       <login-screen v-else-if="screen === 'login'" />

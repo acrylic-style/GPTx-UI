@@ -149,6 +149,14 @@ onMounted(() => {
   if (savedMode) {
     mode.value = savedMode
   }
+
+  // @ts-ignore
+  if (window.api) {
+    // @ts-ignore
+    window.api.onScreenshot(() => {
+      mode.value = 'chat'
+    })
+  }
 })
 </script>
 

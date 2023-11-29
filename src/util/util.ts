@@ -4,7 +4,8 @@ export const SUMMARIZE_PROMPT = 'Summarize the prompt in around 40 characters fo
 
 export const apiUrl = (path: string) => {
   if (process.env.NODE_ENV === 'production') {
-    return `/api/${path}`
+    // TODO: replace with env var?
+    return `https://gptx.acrylicstyle.xyz/api/${path}`
   } else {
     return `http://localhost:8787/api/${path}`
   }
@@ -43,4 +44,23 @@ export const convertPdfToText = async (urlOrData: string | ArrayBuffer) => {
   }
   let texts = await Promise.all(promises);
   return texts.join('');
+}
+
+export const getDataTypeFromDataURI = (dataURI: string): string =>
+  dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+export const dataURItoFile = (dataURI: string, filename: string): File => {
+  // let byteString: string
+  // if (dataURI.split(',')[0].indexOf('base64') >= 0)
+  //   byteString = atob(dataURI.split(',')[1])
+  // else
+  //   byteString = decodeURI(dataURI.split(',')[1])
+  const byteString = atob(dataURI.split(',')[1])
+
+  const ia = new Uint8Array(byteString.length)
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i)
+  }
+
+  return new File([ia], filename, {type: getDataTypeFromDataURI(dataURI)})
 }

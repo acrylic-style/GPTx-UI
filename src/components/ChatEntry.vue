@@ -27,7 +27,7 @@
 
 <script lang="ts" setup>
 import {marked} from "marked";
-import * as DOMPurify from 'isomorphic-dompurify'
+import * as DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
 import {contentToString, JsonContentImageUrl, JsonMessage, TextMessage} from "@/util/history";
 

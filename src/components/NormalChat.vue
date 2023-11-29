@@ -99,15 +99,35 @@
         ></v-checkbox>
       </v-responsive>
     </v-container>
+    <v-overlay
+      :model-value="!!crop"
+      class="align-center justify-center"
+      @after-leave="crop = ''; cropOptions = []"
+    >
+      <cropper
+        :src="crop"
+        @change="onCrop"
+      />
+      <v-btn
+        color="green"
+        @click="onCropSave"
+      >保存</v-btn>
+      <v-btn
+        color="green"
+        @click="onCropCancel"
+      >キャンセル</v-btn>
+    </v-overlay>
   </v-main>
 </template>
 
 <script lang="ts" setup>
 import SideBar from "@/components/ChatHistorySideBar.vue";
 import {ref} from "vue";
-import {apiUrl, fileToBase64DataUrl, SUMMARIZE_PROMPT} from "@/util/util";
+import {apiUrl, dataURItoFile, fileToBase64DataUrl, getDataTypeFromDataURI, SUMMARIZE_PROMPT} from "@/util/util";
 import {deleteHistory, HistoryEntry, JsonContent, saveHistory} from "@/util/history";
 import ChatEntry from "@/components/ChatEntry.vue";
+import {Cropper} from "vue-advanced-cropper";
+import 'vue-advanced-cropper/dist/style.css';
 
 const decoder = new TextDecoder()
 const models = ref([{ title: 'Loading...', value: 'dummy' }])
@@ -119,6 +139,27 @@ const current = ref<HistoryEntry>({ id: '', title: '', messages: [] })
 const generating = ref(false)
 const autoSave = ref(true)
 const sidebar = ref(null)
+const cropOptions = ref<Array<string>>()
+const crop = ref('')
+const cropped = ref('')
+
+const onCrop = ({canvas}) => {
+  cropped.value = canvas.toDataURL()
+}
+
+const onCropSave = () => {
+  const data = cropped.value || crop.value
+  images.value.push(dataURItoFile(data, 'image.' + getDataTypeFromDataURI(data).split('/')[1]))
+  const visionModel = models.value.find(e => e.value.includes('vision'))
+  if (visionModel) {
+    model.value = visionModel.value
+  }
+  crop.value = cropOptions.value.shift() || ''
+}
+
+const onCropCancel = () => {
+  crop.value = cropOptions.value.shift() || ''
+}
 
 const onModelChange = () => {
   localStorage.setItem('model', model.value)
@@ -220,6 +261,15 @@ fetch(apiUrl('models'), {credentials: 'include'})
       model.value = modelOnLocalStorage
     }
   })
+
+// @ts-ignore
+if (window.api) {
+  // @ts-ignore
+  window.api.onScreenshot((data: string[]) => {
+    cropOptions.value = data.slice(1)
+    crop.value = data[0]
+  })
+}
 
 defineProps<{
   leftDrawer: boolean

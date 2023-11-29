@@ -7,11 +7,11 @@
           <v-radio label="分" value="minute"></v-radio>
           <v-radio label="日" value="day"></v-radio>
         </v-radio-group>
-        <v-checkbox
-          label="Retrievalが使用可能"
-          :model-value="me.allow_retrieval_tool"
-          :disabled="true"
-        ></v-checkbox>
+        <!-- Workaround for close button being hidden in small window size -->
+        <v-btn
+          color="green"
+          @click="$emit('setScreen', 'ok')"
+        >閉じる</v-btn>
         <v-container
           v-for="(key) in Object.keys(me.used)"
           :key="key"

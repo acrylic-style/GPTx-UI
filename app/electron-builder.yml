@@ -1,3 +1,8 @@
 npmRebuild: false
 win:
   target: msi
+  publish: null
+linux:
+  publish: null
+mac:
+  publish: null

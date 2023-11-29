@@ -269,6 +269,7 @@ if (window.api) {
     console.log(`Received ${data.length} images`)
     cropOptions.value = data.slice(1)
     crop.value = data[0]
+    console.log('Current crop value: ' + crop.value)
   })
 }
 

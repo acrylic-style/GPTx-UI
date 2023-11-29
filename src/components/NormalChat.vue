@@ -100,9 +100,9 @@
       </v-responsive>
     </v-container>
     <v-overlay
-      :model-value="!!crop"
+      :model-value="cropping"
       class="align-center justify-center"
-      @after-leave="crop = ''; cropOptions = []"
+      @after-leave="crop = ''; cropOptions = []; cropping = false"
     >
       <cropper
         :src="crop"
@@ -142,6 +142,7 @@ const sidebar = ref(null)
 const cropOptions = ref<Array<string>>()
 const crop = ref('')
 const cropped = ref('')
+const cropping = ref(false)
 
 const onCrop = ({canvas}) => {
   cropped.value = canvas.toDataURL()
@@ -155,10 +156,16 @@ const onCropSave = () => {
     model.value = visionModel.value
   }
   crop.value = cropOptions.value.shift() || ''
+  if (!crop.value) {
+    cropping.value = false
+  }
 }
 
 const onCropCancel = () => {
   crop.value = cropOptions.value.shift() || ''
+  if (!crop.value) {
+    cropping.value = false
+  }
 }
 
 const onModelChange = () => {
@@ -269,7 +276,8 @@ if (window.api) {
     console.log(`Received ${data.length} images`)
     cropOptions.value = data.slice(1)
     crop.value = data[0]
-    console.log('Current crop value: ' + crop.value)
+    cropping.value = true
+    console.log('Current crop value', {crop: crop.value, cropOptions: cropOptions.value, cropping: cropping.value})
   })
 }
 

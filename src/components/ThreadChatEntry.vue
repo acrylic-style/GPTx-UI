@@ -108,7 +108,7 @@
 
 <script lang="ts" setup>
 import {marked} from "marked";
-import * as DOMPurify from 'isomorphic-dompurify'
+import * as DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
 import {Message, MessageContentImageFile, messageToString} from "@/util/thread_history";
 import {apiUrl} from "@/util/util";

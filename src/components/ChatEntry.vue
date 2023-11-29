@@ -63,7 +63,7 @@ const getIconForRole = (role: 'system' | 'user' | 'assistant') => {
 
 const compile = (): string => {
   requestAnimationFrame(() => hljs.highlightAll())
-  return DOMPurify.sanitize(marked(contentToString(props.content)))
+  return (DOMPurify as any).default.sanitize(marked(contentToString(props.content)))
 }
 
 const copyToClipboard = () => {

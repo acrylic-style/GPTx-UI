@@ -173,7 +173,7 @@ const mathJaxTypeSet = () => {
 
 const compile = (text: string): string => {
   scheduleHighlight()
-  return DOMPurify.sanitize(marked(text))
+  return (DOMPurify as any).default.sanitize(marked(text))
 }
 
 const copyToClipboard = (text: string) => {

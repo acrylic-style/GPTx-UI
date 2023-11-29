@@ -61,7 +61,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  appIcon = new Tray(nativeImage.createFromPath(join(__dirname, 'build/icon.png')))
+  appIcon = new Tray('/src/assets/logo.png')
   const screenshot = (size: { width: number, height: number }) => async () => {
     appIcon.closeContextMenu()
     const sources = await desktopCapturer.getSources({

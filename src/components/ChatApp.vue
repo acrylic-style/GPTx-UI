@@ -157,9 +157,11 @@ onMounted(() => {
     // @ts-ignore
     window.api.onScreenshot((data: Array<string>) => {
       mode.value = 'chat'
-      chat.value.cropOptions.value = data.slice(1)
-      chat.value.crop.value = data[0]
-      chat.value.cropping.value = true
+      setTimeout(() => {
+        chat.value.cropOptions.value = data.slice(1)
+        chat.value.crop.value = data[0]
+        chat.value.cropping.value = true
+      }, 100)
     })
   }
 })

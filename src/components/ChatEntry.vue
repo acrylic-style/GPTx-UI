@@ -29,7 +29,7 @@
 import {marked} from "marked";
 import * as DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
-import {contentToString, JsonContentImageUrl, JsonMessage, TextMessage} from "@/util/history";
+import {contentToString, JsonContentImageUrl, JsonMessage, TextMessage} from "@/util/history/text";
 
 marked.use({
   gfm: true

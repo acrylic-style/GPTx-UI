@@ -9,9 +9,9 @@
 </template>
 
 <script lang="ts" setup>
-import {contentToString, HistoryEntry} from "@/util/history";
-import {messageToString, ThreadHistoryEntry} from "@/util/thread_history";
-import {GeneratedImageHistoryEntry} from "@/util/generated_image_history";
+import {contentToString, HistoryEntry} from "@/util/history/text";
+import {messageToString, ThreadHistoryEntry} from "@/util/history/thread";
+import {GeneratedImageHistoryEntry} from "@/util/history/image";
 
 const { type, item } = defineProps<{
   type: 'normal' | 'thread' | 'image'

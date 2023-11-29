@@ -124,7 +124,7 @@
 import SideBar from "@/components/ChatHistorySideBar.vue";
 import {ref} from "vue";
 import {apiUrl, dataURItoFile, fileToBase64DataUrl, getDataTypeFromDataURI, SUMMARIZE_PROMPT} from "@/util/util";
-import {deleteHistory, HistoryEntry, JsonContent, saveHistory} from "@/util/history";
+import {deleteHistory, HistoryEntry, JsonContent, saveHistory} from "@/util/history/text";
 import ChatEntry from "@/components/ChatEntry.vue";
 import {Cropper} from "vue-advanced-cropper";
 import 'vue-advanced-cropper/dist/style.css';
@@ -232,16 +232,16 @@ const generate = async () => {
             ]
           }),
           credentials: 'include',
-        }).then(res => res.text()).then(summary => {
+        }).then(res => res.text()).then(async summary => {
           if ((summary.startsWith('"') && summary.endsWith('"')) || (summary.startsWith('「') && summary.endsWith('」'))) {
             summary = summary.substring(1, summary.length - 1)
           }
           current.value.title = summary
-          saveHistory(current.value)
+          await saveHistory(current.value)
           sidebar.value.update()
         })
       } else if (autoSave.value) {
-        saveHistory(current.value)
+        await saveHistory(current.value)
       }
     }).catch(e => console.error(e.stack || e))
   } finally {

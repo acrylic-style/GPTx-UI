@@ -1,3 +1,5 @@
+import {useTransaction} from "../db";
+
 export type File = {
   id: string,
   bytes: number
@@ -93,7 +95,7 @@ export type ThreadHistoryEntry = {
   messages: Array<Message>
 }
 
-export const messageToString = (message: Message): string => {
+export const messageToString = (message?: Message): string => {
   if (!message) return ''
   if (typeof message.content === 'string') {
     return message.content
@@ -105,29 +107,33 @@ export const messageToString = (message: Message): string => {
 }
 
 export const saveHistory = (current: ThreadHistoryEntry) => {
-  let save = localStorage.getItem('threads') || '{}'
-  save = JSON.parse(save)
-  save[current.id] = current
-  localStorage.setItem('threads', JSON.stringify(save))
+  return useTransaction('threads', 'threads', store => store.put(current, current.id))
 }
 
 export const deleteHistory = (id: string) => {
-  let save = localStorage.getItem('threads') || '{}'
-  save = JSON.parse(save)
-  delete save[id]
-  localStorage.setItem('threads', JSON.stringify(save))
+  return useTransaction('threads', 'threads', store => store.delete(id))
 }
 
-export const loadHistory = (id: string): ThreadHistoryEntry | null => {
-  const rawSave = localStorage.getItem('threads')
-  if (!rawSave) return null
-  const save: ThreadHistoryEntry = JSON.parse(rawSave)
-  if (!save[id] || !save[id].id || !save[id].messages) return
-  return save
+export const loadHistory = (id: string): Promise<ThreadHistoryEntry | null> => {
+  return useTransaction('threads', 'threads', store => store.get(id) || null)
 }
 
-export const loadAllHistory = (): { [id: string]: ThreadHistoryEntry } => {
-  const rawSave = localStorage.getItem('threads')
-  if (!rawSave) return {}
-  return JSON.parse(rawSave)
+export const loadAllHistory = async (): Promise<Array<ThreadHistoryEntry>> => {
+  await migrateHistory()
+  return await useTransaction('threads', 'threads', store => store.getAll())
+}
+
+const migrateHistory = async () => {
+  const localStorageSave = localStorage.getItem('threads')
+  if (!localStorageSave) return
+  const parsed = JSON.parse(localStorageSave)
+  if (!parsed) return
+  const keys = Object.keys(parsed)
+  if (keys.length === 0) return
+  for (const key of keys) {
+    const value = parsed[key]
+    if (!value) continue
+    await saveHistory(value)
+  }
+  localStorage.removeItem('threads')
 }

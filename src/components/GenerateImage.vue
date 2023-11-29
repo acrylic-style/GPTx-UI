@@ -88,7 +88,7 @@
 
 <script lang="ts" setup>
 import GeneratedImageHistorySideBar from "@/components/GeneratedImageHistorySideBar.vue";
-import {deleteHistory, GeneratedImageHistoryEntry, saveHistory} from "@/util/generated_image_history";
+import {deleteHistory, GeneratedImageHistoryEntry, saveHistory} from "@/util/history/image";
 import {ref} from "vue";
 import {apiUrl} from "@/util/util";
 
@@ -139,7 +139,7 @@ const generate = async () => {
     }).then(res => res.json())
     if (response.data) {
       current.value.images.push(...response.data)
-      saveHistory(current.value)
+      await saveHistory(current.value)
       sidebar.value.update()
     } else {
       console.error('Invalid response', response)

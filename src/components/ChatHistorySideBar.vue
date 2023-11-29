@@ -20,10 +20,10 @@
 </template>
 
 <script lang="ts" setup>
-import {loadAllHistory as loadAllHistoryNormal} from "@/util/history";
-import {loadAllHistory as loadAllHistoryThread} from "@/util/thread_history";
+import {loadAllHistory as loadAllHistoryNormal} from "@/util/history/text";
+import {loadAllHistory as loadAllHistoryThread} from "@/util/history/thread";
 import HistoryEntryButton from "@/components/HistoryEntryButton.vue";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 
 const { type } = defineProps<{
   type: 'normal' | 'thread'
@@ -43,11 +43,13 @@ const loadAllHistory = () => {
 }
 
 const selectedId = ref('')
-const items = ref(Object.values(loadAllHistory()))
+const items = ref<Awaited<ReturnType<typeof loadAllHistory>>>([])
 
-const update = () => {
-  items.value = Object.values(loadAllHistory())
+const update = async () => {
+  items.value = await loadAllHistory()
 }
+
+onMounted(() => update())
 
 defineExpose({update})
 

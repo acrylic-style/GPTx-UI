@@ -20,9 +20,9 @@
 </template>
 
 <script lang="ts" setup>
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import HistoryEntryButton from "@/components/HistoryEntryButton.vue";
-import {GeneratedImageHistoryEntry, loadAllHistory} from "@/util/generated_image_history";
+import {GeneratedImageHistoryEntry, loadAllHistory} from "@/util/history/image";
 
 defineProps<{
   disabled: boolean
@@ -33,11 +33,13 @@ const emit = defineEmits<{
 }>()
 
 const selectedId = ref('')
-const items = ref(Object.values(loadAllHistory()))
+const items = ref<Awaited<ReturnType<typeof loadAllHistory>>>([])
 
-const update = () => {
-  items.value = Object.values(loadAllHistory())
+const update = async () => {
+  items.value = await loadAllHistory()
 }
+
+onMounted(() => update())
 
 defineExpose({update})
 

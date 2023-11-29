@@ -110,7 +110,7 @@
 import {marked} from "marked";
 import * as DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
-import {Message, MessageContentImageFile, messageToString} from "@/util/thread_history";
+import {Message, MessageContentImageFile, messageToString} from "@/util/history/thread";
 import {apiUrl} from "@/util/util";
 import {onMounted, ref} from "vue";
 

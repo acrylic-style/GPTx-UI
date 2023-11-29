@@ -3,7 +3,7 @@ name: Build/release
 on: push
 
 jobs:
-  release:
+  build:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -41,6 +41,10 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: |
             app/dist/*.msi
+            app/dist/*.dmg
+            app/dist/*.zip
+            app/dist/*.snap
+            app/dist/*.AppImage
           target_commitish: ${{ github.sha }}
           fail_on_unmatched_files: true
 #          token: ${{ secrets.GITHUB_TOKEN }}

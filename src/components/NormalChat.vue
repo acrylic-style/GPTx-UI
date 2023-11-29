@@ -273,11 +273,13 @@ fetch(apiUrl('models'), {credentials: 'include'})
 if (window.api) {
   // @ts-ignore
   window.api.onScreenshot((data: string[]) => {
-    console.log(`Received ${data.length} images`)
-    cropOptions.value = data.slice(1)
-    crop.value = data[0]
-    cropping.value = true
-    console.log('Current crop value', {crop: crop.value, cropOptions: cropOptions.value, cropping: cropping.value})
+    setTimeout(() => {
+      console.log(`Received ${data.length} images`)
+      cropOptions.value = data.slice(1)
+      crop.value = data[0]
+      cropping.value = true
+      console.log('Current crop value', {crop: crop.value, cropOptions: cropOptions.value, cropping: cropping.value})
+    }, 500)
   })
 }
 

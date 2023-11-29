@@ -4,7 +4,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 // Custom APIs for renderer
 const api = {
   // eslint-disable-next-line no-unused-vars
-  onScreenshot: (callback: (dataUrl: string) => void) => ipcRenderer.on('screenshot', (_e, arg) => callback(arg)),
+  onScreenshot: (callback: (dataUrl: Array<string>) => void) => ipcRenderer.on('screenshot', (_e, arg) => callback(arg)),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

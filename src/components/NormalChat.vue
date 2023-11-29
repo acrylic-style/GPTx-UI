@@ -269,20 +269,11 @@ fetch(apiUrl('models'), {credentials: 'include'})
     }
   })
 
-// @ts-ignore
-if (window.api) {
-  // @ts-ignore
-  window.api.onScreenshot((data: string[]) => {
-    setTimeout(() => {
-      console.log(`Received ${data.length} images`)
-      cropOptions.value = data.slice(1)
-      crop.value = data[0]
-      cropping.value = true
-      console.log('Current crop value', {crop: crop.value, cropOptions: cropOptions.value, cropping: cropping.value})
-    }, 500)
-  })
-}
-
+defineExpose({
+  crop,
+  cropOptions,
+  cropping,
+})
 defineProps<{
   leftDrawer: boolean
 }>()

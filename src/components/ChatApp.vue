@@ -63,7 +63,7 @@
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
-  <normal-chat v-show="mode === 'chat'" v-model:left-drawer="leftDrawer">
+  <normal-chat v-if="mode === 'chat'" v-model:left-drawer="leftDrawer" ref="chat">
     <template v-slot:mode-selector>
       <v-select
         label="モード"
@@ -75,7 +75,7 @@
       ></v-select>
     </template>
   </normal-chat>
-  <assistant-chat v-show="mode === 'assistant'" v-model:left-drawer="leftDrawer">
+  <assistant-chat v-if="mode === 'assistant'" v-model:left-drawer="leftDrawer">
     <template v-slot:mode-selector>
       <v-select
         label="モード"
@@ -87,7 +87,7 @@
       ></v-select>
     </template>
   </assistant-chat>
-  <generate-image v-show="mode === 'generate_image'" v-model:left-drawer="leftDrawer">
+  <generate-image v-if="mode === 'generate_image'" v-model:left-drawer="leftDrawer">
     <template v-slot:mode-selector>
       <v-select
         label="モード"
@@ -132,6 +132,8 @@ const leftDrawer = ref(false)
 const rightDrawer = ref(false)
 const subScreen = ref('')
 
+const chat = ref(null)
+
 const onModeChange = () => {
   localStorage.setItem('mode', mode.value)
 }
@@ -153,8 +155,11 @@ onMounted(() => {
   // @ts-ignore
   if (window.api) {
     // @ts-ignore
-    window.api.onScreenshot(() => {
+    window.api.onScreenshot((data: Array<string>) => {
       mode.value = 'chat'
+      chat.value.cropOptions.value = data.slice(1)
+      chat.value.crop.value = data[0]
+      chat.value.cropping.value = true
     })
   }
 })

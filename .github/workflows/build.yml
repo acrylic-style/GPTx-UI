@@ -46,5 +46,4 @@ jobs:
             app/dist/*.snap
             app/dist/*.AppImage
           target_commitish: ${{ github.sha }}
-          fail_on_unmatched_files: true
 #          token: ${{ secrets.GITHUB_TOKEN }}

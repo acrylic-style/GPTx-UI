@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, Tray, Menu, desktopCapturer, nativeImage } from 'electron'
+import { app, shell, BrowserWindow, Tray, Menu, desktopCapturer } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 
@@ -34,7 +34,7 @@ function createWindow(): void {
   }
 
   mainWindow.on('close', () => {
-    mainWindow.hide()
+    mainWindow.minimize()
   })
 }
 

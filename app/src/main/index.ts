@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, Tray, Menu, desktopCapturer } from 'electron'
+import { app, shell, BrowserWindow, Tray, Menu, desktopCapturer, nativeImage } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 
@@ -33,8 +33,8 @@ function createWindow(): void {
     mainWindow.loadURL('https://gptx.acrylicstyle.xyz')
   }
 
-  mainWindow.on('close', e => {
-    e.preventDefault()
+  mainWindow.on('close', () => {
+    mainWindow.hide()
   })
 }
 
@@ -61,7 +61,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  appIcon = new Tray(join(__dirname, '../assets/icon.png'))
+  appIcon = new Tray(nativeImage.createFromPath(join(__dirname, 'build/icon.png')))
   const screenshot = (size: { width: number, height: number }) => async () => {
     appIcon.closeContextMenu()
     const sources = await desktopCapturer.getSources({

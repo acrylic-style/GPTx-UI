@@ -1,0 +1,3 @@
+npmRebuild: false
+win:
+  target: msi

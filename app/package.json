@@ -1,0 +1,23 @@
+{
+  "name": "gptx-app",
+  "version": "1.0.0",
+  "description": "GPTx App",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:win": "npm run build && electron-builder --win --config",
+    "build:mac": "npm run build && electron-builder --mac --config",
+    "build:linux": "npm run build && electron-builder --linux --config"
+  },
+  "author": "acrylic-style <me@acrylicstyle.xyz>",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.1.2",
+    "electron-builder": "^24.9.1",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^2.0.0",
+    "@electron-toolkit/utils": "^2.0.1"
+  }
+}

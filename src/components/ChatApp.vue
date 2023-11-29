@@ -63,7 +63,7 @@
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
-  <normal-chat v-if="mode === 'chat'" v-model:left-drawer="leftDrawer">
+  <normal-chat v-show="mode === 'chat'" v-model:left-drawer="leftDrawer">
     <template v-slot:mode-selector>
       <v-select
         label="モード"
@@ -75,7 +75,7 @@
       ></v-select>
     </template>
   </normal-chat>
-  <assistant-chat v-if="mode === 'assistant'" v-model:left-drawer="leftDrawer">
+  <assistant-chat v-show="mode === 'assistant'" v-model:left-drawer="leftDrawer">
     <template v-slot:mode-selector>
       <v-select
         label="モード"
@@ -87,7 +87,7 @@
       ></v-select>
     </template>
   </assistant-chat>
-  <generate-image v-if="mode === 'generate_image'" v-model:left-drawer="leftDrawer">
+  <generate-image v-show="mode === 'generate_image'" v-model:left-drawer="leftDrawer">
     <template v-slot:mode-selector>
       <v-select
         label="モード"

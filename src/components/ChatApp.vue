@@ -158,9 +158,9 @@ onMounted(() => {
     window.api.onScreenshot((data: Array<string>) => {
       mode.value = 'chat'
       setTimeout(() => {
-        chat.value.cropOptions.value = data.slice(1)
-        chat.value.crop.value = data[0]
-        chat.value.cropping.value = true
+        chat.value.cropOptions = data.slice(1)
+        chat.value.crop = data[0]
+        chat.value.cropping = true
       }, 100)
     })
   }

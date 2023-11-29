@@ -1,8 +1,6 @@
 import { app, shell, BrowserWindow, Tray, Menu, desktopCapturer } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-// @ts-ignore
-import icon from '../assets/logo.png?asset'
 
 let mainWindow: BrowserWindow = null
 function createWindow(): void {
@@ -12,7 +10,6 @@ function createWindow(): void {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    icon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
@@ -64,7 +61,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  appIcon = new Tray(icon)
+  appIcon = new Tray(join(__dirname, '../assets/icon.png'))
   const screenshot = (size: { width: number, height: number }) => async () => {
     appIcon.closeContextMenu()
     const sources = await desktopCapturer.getSources({

@@ -105,6 +105,7 @@
       @after-leave="crop = ''; cropOptions = []; cropping = false"
     >
       <cropper
+        class="cropper"
         :src="crop"
         @change="onCrop"
       />
@@ -281,3 +282,10 @@ defineEmits<{
   'update:leftDrawer': [boolean]
 }>()
 </script>
+
+<style scoped>
+.cropper {
+  max-height: 85vw;
+  max-width: 85vw;
+}
+</style>

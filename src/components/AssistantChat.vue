@@ -2,7 +2,7 @@
   <v-main>
     <v-navigation-drawer
       :model-value="leftDrawer"
-      @update:model-value="$emit('update:leftDrawer', $event.target.value)"
+      @update:model-value="v => $emit('update:leftDrawer', v)"
       location="left"
       :temporary="false"
       width="350"

@@ -158,6 +158,8 @@ onMounted(() => {
     window.api.onScreenshot((data: Array<string>) => {
       mode.value = 'chat'
       setTimeout(() => {
+        // TODO: hardcoded
+        chat.value.model = 'gpt-4-vision-preview'
         chat.value.cropOptions = data.slice(1)
         chat.value.crop = data[0]
         chat.value.cropping = true

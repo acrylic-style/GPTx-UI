@@ -42,7 +42,7 @@ function createWindow(): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 let appIcon: Tray = null
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('xyz.acrylicstyle.gptx')
 
@@ -61,7 +61,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  appIcon = new Tray('/src/assets/logo.png')
+  appIcon = new Tray(join(__dirname, './logo.png'))
   const screenshot = (size: { width: number, height: number }) => async () => {
     appIcon.closeContextMenu()
     const sources = await desktopCapturer.getSources({
@@ -74,24 +74,14 @@ app.whenReady().then(() => {
   }
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Take Screenshot as 3840x2160 (3680x2070)',
+      label: 'Take Screenshot as 4K (3840x2160)',
       type: 'normal',
-      click: screenshot({ width: 3680, height: 2070 }),
+      click: screenshot({ width: 3840, height: 2160 }),
     },
     {
-      label: 'Take Screenshot as 1920x1080 (1760x990)',
+      label: 'Take Screenshot as HD (1920x1080)',
       type: 'normal',
-      click: screenshot({ width: 1760, height: 990 }),
-    },
-    {
-      label: 'Take Screenshot as 1600x900 (1440x810)',
-      type: 'normal',
-      click: screenshot({ width: 1440, height: 810 }),
-    },
-    {
-      label: 'Take Screenshot as 1280x720 (1120x630)',
-      type: 'normal',
-      click: screenshot({ width: 1120, height: 630 }),
+      click: screenshot({ width: 1920, height: 1080 }),
     },
     {type: 'separator'},
     {

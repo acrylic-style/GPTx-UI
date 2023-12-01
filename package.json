@@ -7,7 +7,7 @@
     "dev": "vite",
     "preview": "vite preview",
     "lint": "eslint . --fix --ignore-path .gitignore",
-    "build": "vite app/build"
+    "build": "vite build"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^2.0.0",

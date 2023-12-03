@@ -113,7 +113,7 @@
 <script lang="ts" setup>
 import SideBar from "@/components/ChatHistorySideBar.vue";
 import {ref} from "vue";
-import {apiUrl, convertPdfToText, SUMMARIZE_PROMPT} from "@/util/util";
+import {apiUrl, convertPdfToText, summarize} from "@/util/util";
 import {deleteHistory, ThreadHistoryEntry, saveHistory, Message, Run} from "@/util/thread_history";
 import ThreadChatEntry from "@/components/ThreadChatEntry.vue";
 import {NodeHtmlMarkdown} from "node-html-markdown";
@@ -392,24 +392,9 @@ const generate = async () => {
       files.value = []
     }
     if (!current.value.title) {
-      await fetch(apiUrl('generate'), {
-        method: 'POST',
-        body: JSON.stringify({
-          model: 'gpt-4',
-          content: [
-            {role: 'system', content: SUMMARIZE_PROMPT},
-            {role: 'user', content: userPromptBackup},
-          ]
-        })
-      }).then(res => res.text()).then(summary => {
-        if ((summary.startsWith('"') && summary.endsWith('"')) || (summary.startsWith('「') && summary.endsWith('」'))) {
-          summary = summary.substring(1, summary.length - 1)
-        }
-        current.value.title = summary
-        saveHistory(current.value)
-        sidebar.value.update()
-      })
-    } else if (autoSave.value) {
+      current.value.title = await summarize(userPromptBackup)
+    }
+    if (autoSave.value) {
       saveHistory(current.value)
       sidebar.value.update()
     }

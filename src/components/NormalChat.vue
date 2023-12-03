@@ -91,7 +91,7 @@
 <script lang="ts" setup>
 import SideBar from "@/components/ChatHistorySideBar.vue";
 import {ref} from "vue";
-import {apiUrl, fileToBase64DataUrl, SUMMARIZE_PROMPT} from "@/util/util";
+import {apiUrl, fileToBase64DataUrl, summarize} from "@/util/util";
 import {deleteHistory, HistoryEntry, JsonContent, saveHistory} from "@/util/history";
 import ChatEntry from "@/components/ChatEntry.vue";
 
@@ -159,25 +159,11 @@ const generate = async () => {
       userPrompt.value = ''
       images.value = []
       if (!current.value.title) {
-        await fetch(apiUrl('generate'), {
-          method: 'POST',
-          body: JSON.stringify({
-            model: 'gpt-4',
-            content: [
-              { role: 'system', content: SUMMARIZE_PROMPT },
-              { role: 'user', content: userPromptBackup },
-            ]
-          })
-        }).then(res => res.text()).then(summary => {
-          if ((summary.startsWith('"') && summary.endsWith('"')) || (summary.startsWith('「') && summary.endsWith('」'))) {
-            summary = summary.substring(1, summary.length - 1)
-          }
-          current.value.title = summary
-          saveHistory(current.value)
-          sidebar.value.update()
-        })
-      } else if (autoSave.value) {
+        current.value.title = await summarize(userPromptBackup)
+      }
+      if (autoSave.value) {
         saveHistory(current.value)
+        sidebar.value.update()
       }
     }).catch(e => console.error(e.stack || e))
   } finally {

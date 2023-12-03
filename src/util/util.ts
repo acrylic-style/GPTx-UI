@@ -1,7 +1,5 @@
 import * as process from 'process'
 
-export const SUMMARIZE_PROMPT = 'Summarize the prompt in around 40 characters for English, and 15 characters for Japanese. You only have to output the result in the appropriate language (If English was provided, then output in English, and do NOT output Japanese). Provide only one summary, and do not provide more than one summary.'
-
 export const apiUrl = (path: string) => {
   if (process.env.NODE_ENV === 'production') {
     // TODO: replace with env var?
@@ -9,6 +7,18 @@ export const apiUrl = (path: string) => {
   } else {
     return `http://localhost:8787/api/${path}`
   }
+}
+
+export const summarize = async (input: string): Promise<string> => {
+  const response = await fetch(apiUrl('summarize'), {
+    method: 'POST',
+    body: input,
+    credentials: 'include',
+  })
+  if (!response.ok) {
+    return input
+  }
+  return await response.text()
 }
 
 export const filterContent = (content: string) => {

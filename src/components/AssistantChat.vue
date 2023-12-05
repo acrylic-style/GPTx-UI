@@ -33,6 +33,8 @@
           label="命令 (System)"
           v-model="systemPrompt"
           :disabled="generating"
+          append-inner-icon="mdi-help-circle-outline"
+          @click:append-inner="help = 'instruction'"
         ></v-textarea>
         <v-btn
           color="pink"
@@ -122,6 +124,13 @@
         ></v-checkbox>
       </v-responsive>
     </v-container>
+    <v-overlay
+        :model-value="help !== ''"
+        class="align-center justify-center"
+        @after-leave="help = ''"
+    >
+      <instruction-help-card v-if="help === 'instruction'" @close="help = ''" />
+    </v-overlay>
   </v-main>
 </template>
 
@@ -132,6 +141,7 @@ import {apiUrl, convertPdfToText, summarize} from "@/util/util";
 import {deleteHistory, ThreadHistoryEntry, saveHistory, Message, Run} from "@/util/history/thread";
 import ThreadChatEntry from "@/components/ThreadChatEntry.vue";
 import {NodeHtmlMarkdown} from "node-html-markdown";
+import InstructionHelpCard from "@/components/InstructionHelpCard.vue";
 
 const models = ref(new Array<{ title: string, value: string }>())
 const model = ref('')
@@ -144,6 +154,7 @@ const autoSave = ref(true)
 const codeInterpreter = ref(true)
 const retrieval = ref(true)
 const sidebar = ref(null)
+const help = ref('')
 const functions = {
   search: {
     action: async (query: string) => {

@@ -35,6 +35,8 @@
           label="命令 (System)"
           v-model="systemPrompt"
           :disabled="generating"
+          append-inner-icon="mdi-help-circle-outline"
+          @click:append-inner="help = 'instruction'"
         ></v-textarea>
         <v-btn
           v-if="current.messages.length === 0"
@@ -100,6 +102,13 @@
       </v-responsive>
     </v-container>
     <v-overlay
+        :model-value="help !== ''"
+        class="align-center justify-center"
+        @after-leave="help = ''"
+    >
+      <instruction-help-card v-if="help === 'instruction'" @close="help = ''" />
+    </v-overlay>
+    <v-overlay
       :model-value="cropping"
       class="align-center justify-center"
       @after-leave="crop = ''; cropOptions = []; cropping = false"
@@ -129,6 +138,7 @@ import {deleteHistory, HistoryEntry, JsonContent, saveHistory} from "@/util/hist
 import ChatEntry from "@/components/ChatEntry.vue";
 import {Cropper} from "vue-advanced-cropper";
 import 'vue-advanced-cropper/dist/style.css';
+import InstructionHelpCard from "@/components/InstructionHelpCard.vue";
 
 const decoder = new TextDecoder()
 const models = ref([{ title: 'Loading...', value: 'dummy' }])
@@ -144,6 +154,7 @@ const cropOptions = ref<Array<string>>()
 const crop = ref('')
 const cropped = ref('')
 const cropping = ref(false)
+const help = ref('')
 
 const onCrop = ({canvas}) => {
   cropped.value = canvas.toDataURL()

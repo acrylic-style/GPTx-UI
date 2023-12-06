@@ -37,6 +37,12 @@
         </template>
         <v-list-item-title>ログアウト</v-list-item-title>
       </v-list-item>
+      <v-list-item @click="redirect(apiUrl('discord'))">
+        <template v-slot:prepend>
+          <v-icon icon="mdi-book"></v-icon>
+        </template>
+        <v-list-item-title>Discordサーバー</v-list-item-title>
+      </v-list-item>
       <v-list-item @click="subScreen = 'pricing'">
         <template v-slot:prepend>
           <v-icon icon="mdi-book"></v-icon>

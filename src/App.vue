@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <mode-list @set-screen="s => screen = s" />
+    <getting-started-overlay v-if="screen === 'ok'" />
+    <chat-app @set-screen="s => screen = s" />
     <v-overlay
       :model-value="screen !== 'ok'"
       :persistent="screen !== 'usage'"
@@ -19,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import ModeList from "@/components/ChatApp.vue";
+import ChatApp from "@/components/ChatApp.vue";
 import {onMounted, ref} from "vue";
 import {apiUrl} from "@/util/util";
 import LoginScreen from "@/components/LoginScreen.vue";
@@ -27,6 +28,7 @@ import InviteCodeScreen from "@/components/InviteCodeScreen.vue";
 import StripeScreen from "@/components/StripeScreen.vue";
 import UsageScreen from "@/components/UsageScreen.vue";
 import Stripe2Screen from "@/components/Stripe2Screen.vue";
+import GettingStartedOverlay from "@/components/GettingStartedOverlay.vue";
 
 const screen = ref('loading')
 
@@ -53,10 +55,3 @@ onMounted(async () => {
   }
 })
 </script>
-
-<style>
-.half {
-  width: 50%;
-  max-width: 50%;
-}
-</style>

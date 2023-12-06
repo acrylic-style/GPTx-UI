@@ -74,3 +74,7 @@ export const dataURItoFile = (dataURI: string, filename: string): File => {
 
   return new File([ia], filename, {type: getDataTypeFromDataURI(dataURI)})
 }
+
+export const openInNewTab = (url: string) => {
+  window.open(url, '_blank')
+}

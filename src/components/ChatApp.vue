@@ -37,7 +37,7 @@
         </template>
         <v-list-item-title>ログアウト</v-list-item-title>
       </v-list-item>
-      <v-list-item @click="redirect(apiUrl('discord'))">
+      <v-list-item @click="openInNewTab(apiUrl('discord'))">
         <template v-slot:prepend>
           <v-icon icon="mdi-link"></v-icon>
         </template>
@@ -125,7 +125,7 @@ import NormalChat from "@/components/NormalChat.vue";
 import {onMounted, ref} from "vue";
 import AssistantChat from "@/components/AssistantChat.vue";
 import GenerateImage from "@/components/GenerateImage.vue";
-import {apiUrl} from "@/util/util";
+import {apiUrl, openInNewTab} from "@/util/util";
 import FetchScreen from "@/components/FetchScreen.vue";
 
 const modes = [

@@ -9,7 +9,7 @@
       <v-btn prepend-icon="mdi-book" @click="screen = 'terms'">利用規約</v-btn>
       <v-btn prepend-icon="mdi-book" @click="screen = 'privacy-policy'">プライバシーポリシー</v-btn>
       <v-btn prepend-icon="mdi-book" @click="screen = 'sct'">特定商取引法に基づく表記</v-btn>
-      <v-btn prepend-icon="mdi-link" @click="redirect(apiUrl('discord'))">Discordサーバー</v-btn>
+      <v-btn prepend-icon="mdi-link" @click="openInNewTab(apiUrl('discord'))">Discordサーバー</v-btn>
     </v-card-text>
     <v-card-actions>
       <v-btn prepend-icon="mdi-github" @click="redirect(apiUrl('login/github'))">GitHubログイン</v-btn>
@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import {apiUrl} from "@/util/util";
+import {apiUrl, openInNewTab} from "@/util/util";
 import {ref} from "vue";
 import FetchScreen from "@/components/FetchScreen.vue";
 

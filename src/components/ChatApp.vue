@@ -39,7 +39,7 @@
       </v-list-item>
       <v-list-item @click="redirect(apiUrl('discord'))">
         <template v-slot:prepend>
-          <v-icon icon="mdi-book"></v-icon>
+          <v-icon icon="mdi-link"></v-icon>
         </template>
         <v-list-item-title>Discordサーバー</v-list-item-title>
       </v-list-item>

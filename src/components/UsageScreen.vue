@@ -17,7 +17,7 @@
           :key="key"
         >
           <p>{{ !modelNames[key] ? key : (modelNames[key].name || modelNames[key]) }}:
-            {{ me.used[key][unit] }}/{{ me.limits[key] && me.limits[key][unit] !== null ? me.limits[key][unit] : 'Infinity' }}</p>
+            {{ me.used[key][unit] }}{{ me.limits[key] && me.limits[key][unit] !== null ? '/' + me.limits[key][unit] : '' }}</p>
           <v-progress-linear
             v-if="me.limits[key] && me.limits[key][unit] !== null"
             :model-value="me.limits[key][unit] === 0 ? 100 : (me.used[key][unit]/me.limits[key][unit])*100"
@@ -29,7 +29,7 @@
           :key="key"
         >
           <p>{{ !modelNames[key] ? key : (modelNames[key].name || modelNames[key]) }}:
-            {{ me.image_used[key][unit] }}/{{ me.image_limits[key] && me.image_limits[key][unit] !== null ? me.image_limits[key][unit] : 'Infinity' }}</p>
+            {{ me.image_used[key][unit] }}{{ me.image_limits[key] && me.image_limits[key][unit] !== null ? '/' + me.image_limits[key][unit] : '' }}</p>
           <v-progress-linear
             v-if="me.image_limits[key] && me.image_limits[key][unit] !== null"
             :model-value="me.image_limits[key][unit] === 0 ? 100 : (me.image_used[key][unit]/me.image_limits[key][unit])*100"

@@ -7,7 +7,7 @@
         <h3><v-icon color="green-lighten-2">mdi-message</v-icon>チャット＆アシスタント</h3>
         <p>GPTxは質問をすると一般的な情報をもとに答えることができます。</p>
         <p>GPTxの「チャット」モードではリアルタイムで会話が生成されるのを見ることができ、GPT-4 Visionでは画像を認識させることも可能です。(一度に最大10枚まで)</p>
-        <p>「アシスタントモード」では</p>
+        <p>「アシスタントモード」ではGPT-4 Turboを使用してファイルをアップロードして、そのファイルをもとに計算したりなどができます。(Code Interpreter及びRetrieval)</p>
       </div>
       <v-divider class="ms-3 ma-3" :vertical="true" />
       <div>

@@ -107,7 +107,7 @@ export const messageToString = (message?: Message): string => {
 }
 
 export const saveHistory = (current: ThreadHistoryEntry) => {
-  return useTransaction('threads', 'threads', store => store.put(current, current.id))
+  return useTransaction('threads', 'threads', store => store.put(JSON.parse(JSON.stringify(current)), current.id))
 }
 
 export const deleteHistory = (id: string) => {
